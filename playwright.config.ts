@@ -5,7 +5,6 @@ export default defineConfig({
   fullyParallel: false,
   reporter: 'list',
   use: {
-    baseURL: 'https://reportportal.custom-tools.dictuy.iesprd.ictu-sr.nl',
     headless: false,
     trace: 'on-first-retry',
   },
