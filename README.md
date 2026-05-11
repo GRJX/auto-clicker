@@ -51,7 +51,7 @@ Options:
 - `--state <state>` — load a saved state at the start of each iteration (optional). Without it, every iteration starts from an empty browser and the action must log in itself.
 - `--loops <n>` — number of iterations.
 - `--duration <d>` — max wall time (`30s`, `10m`, `1h`).
-- `--headless` — run headless (default: headed).
+- `--headed` — run headed (default: headless).
 
 At least one of `--loops` or `--duration` is required.
 
@@ -82,6 +82,38 @@ The runner owns browser/context lifecycle; the action only owns the steps. Each 
 ### Storage state caveats
 
 `storageState` captures cookies and `localStorage`. It does **not** capture `sessionStorage` and won't survive auth flows that bind to fingerprint, IP, or one-shot tokens. If `--state` doesn't restore a logged-in session, drop it and let the recorded action log in each iteration.
+
+## Debugging a flow
+
+**Step through an action interactively**
+
+Pass `--debug` to open the Playwright Inspector. The browser pauses before each step so you can step through, inspect locators, and see exactly what's failing. It forces a single iteration automatically:
+
+```bash
+npm start -- run myflow --debug --state myacc
+```
+
+**Inspect a failed trace**
+
+On any failed iteration the runner saves a trace to `runs/<timestamp>/<n>/trace.zip`. Open it with:
+
+```bash
+npx playwright show-trace runs/<timestamp>/<n>/trace.zip
+```
+
+The trace viewer shows a timeline of every action, screenshots before/after each step, network requests, and the full error with stack.
+
+**Run headed with a single iteration**
+
+The default for `run` is headed, so a single iteration already gives you a visible browser window. Combine with a short duration if you want it to stop quickly:
+
+```bash
+npm start -- run myflow --loops 1 --state myacc
+```
+
+**Check which selectors Playwright sees**
+
+Use the VS Code Playwright extension's **Pick Locator** button (requires `playwright.config.ts` — already present) to click any element in a headed browser and get its recommended locator.
 
 ## VS Code Playwright extension
 

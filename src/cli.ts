@@ -31,8 +31,14 @@ program
   .option('--state <state>', 'storage state to load (optional)')
   .option('--loops <n>', 'number of iterations', (v) => parseInt(v, 10))
   .option('--duration <d>', 'max duration, e.g. 30s, 10m, 1h')
-  .option('--headless', 'run headless (default: headed)')
-  .action(async (action: string, opts: { state?: string; loops?: number; duration?: string; headless?: boolean }) => {
+  .option('--headed', 'run headed (default: headless)')
+  .option('--debug', 'open Playwright Inspector (sets PWDEBUG=1, forces --loops 1, implies --headed)')
+  .action(async (action: string, opts: { state?: string; loops?: number; duration?: string; headed?: boolean; debug?: boolean }) => {
+    if (opts.debug) {
+      process.env.PWDEBUG = '1';
+      opts.loops = 1;
+      opts.duration = undefined;
+    }
     if (!opts.loops && !opts.duration) {
       console.error('error: at least one of --loops or --duration is required');
       process.exit(2);
@@ -42,7 +48,7 @@ program
       stateName: opts.state,
       loops: opts.loops,
       durationMs: opts.duration ? parseDuration(opts.duration) : undefined,
-      headed: !opts.headless,
+      headed: !!opts.debug || !!opts.headed,
     });
     process.exit(code);
   });
